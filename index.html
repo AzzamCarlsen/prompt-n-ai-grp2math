@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Penelitian: Penggunaan AI & Kecepatan Mengetik Prompt</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --brand: #2563eb;
+      --brand-light: #eff6ff;
+      --brand-mid: #bfdbfe;
+      --teal: #0d9488;
+      --teal-light: #f0fdfa;
+      --surface: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--surface);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+    .mono { font-family: 'DM Mono', monospace; }
+
+    /* Step indicator */
+    .step-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--brand-mid);
+      transition: all 0.4s cubic-bezier(.4,0,.2,1);
+    }
+    .step-dot.active { background: var(--brand); transform: scale(1.4); }
+    .step-dot.done { background: var(--teal); }
+
+    /* Page transitions */
+    .page { display: none; animation: fadeSlide .4s ease forwards; }
+    .page.active { display: block; }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Inputs */
+    .inp {
+      width: 100%; padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit; font-size: 15px;
+      background: white; color: var(--text-primary);
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    .inp:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+    .inp::placeholder { color: var(--text-muted); }
+
+    /* Buttons */
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px 28px; border-radius: 12px;
+      background: var(--brand); color: white;
+      font-family: inherit; font-size: 15px; font-weight: 600;
+      border: none; cursor: pointer;
+      transition: background .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 14px rgba(37,99,235,.25);
+    }
+    .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,.3); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { background: var(--brand-mid); cursor: not-allowed; box-shadow: none; transform: none; }
+
+    /* Validation box */
+    .instruction-box {
+      background: linear-gradient(135deg, #eff6ff 0%, #f0fdfa 100%);
+      border: 1.5px solid #93c5fd;
+      border-left: 4px solid var(--brand);
+      border-radius: 12px;
+      padding: 20px 22px;
+    }
+
+    /* Dropzone */
+    .dropzone {
+      border: 2px dashed #93c5fd;
+      border-radius: 14px;
+      background: var(--brand-light);
+      padding: 36px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .dropzone:hover, .dropzone.dragover { border-color: var(--brand); background: #dbeafe; }
+    .dropzone.has-file { border-color: var(--teal); background: var(--teal-light); }
+
+    /* Card */
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.04), 0 8px 32px rgba(0,0,0,.06);
+    }
+
+    /* Scenario box */
+    .scenario-box {
+      background: linear-gradient(135deg, #f0f9ff 0%, #ecfdf5 100%);
+      border: 1.5px solid #a5f3fc;
+      border-radius: 14px;
+      padding: 22px;
+    }
+    .scenario-label {
+      display: inline-block;
+      padding: 4px 12px; border-radius: 20px;
+      font-size: 12px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
+    }
+    .label-sains   { background: #dbeafe; color: #1d4ed8; }
+    .label-sejarah { background: #fef9c3; color: #854d0e; }
+    .label-sastra  { background: #fce7f3; color: #9d174d; }
+
+    /* Timer badge */
+    .timer-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 20px;
+      background: #f1f5f9; border: 1px solid var(--border);
+      font-size: 13px; font-weight: 600; color: var(--text-secondary);
+    }
+    .timer-dot { width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; }
+    .timer-dot.running { background: #22c55e; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    /* Result card */
+    .result-metric {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    /* Success animation */
+    .check-circle {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      animation: popIn .5s cubic-bezier(.175,.885,.32,1.275);
+    }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      height: 4px; background: var(--brand-mid); border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: var(--brand); border-radius: 2px;
+      transition: width .5s ease;
+    }
+
+    /* Textarea */
+    textarea.inp { resize: vertical; min-height: 140px; line-height: 1.6; }
+
+    /* Error */
+    .field-error { color: #dc2626; font-size: 13px; margin-top: 4px; display: none; }
+    .field-error.show { display: block; }
+
+    /* Loading overlay */
+    #loadingOverlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(15,23,42,.5); backdrop-filter: blur(4px);
+      z-index: 999; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px;
+    }
+    #loadingOverlay.show { display: flex; }
+    .spinner {
+      width: 48px; height: 48px; border: 4px solid rgba(255,255,255,.2);
+      border-top-color: white; border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="py-8 px-4">
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay">
+  <div class="spinner"></div>
+  <p class="text-white font-semibold text-lg">Mengirim data penelitian...</p>
+</div>
+
+<div class="max-w-xl mx-auto">
+
+  <!-- Header -->
+  <div class="text-center mb-8">
+    <div class="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-1.5 mb-4">
+      <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+      <span class="text-blue-700 text-sm font-600 font-semibold">Penelitian Ilmiah</span>
+    </div>
+    <h1 class="text-2xl md:text-3xl font-800 font-extrabold text-slate-900 leading-tight mb-2">
+      Pengaruh Penggunaan AI Text Generator<br class="hidden md:block"/>
+      <span class="text-blue-600">terhadap Kecepatan Mengetik Prompt</span>
+    </h1>
+    <p class="text-slate-500 text-sm mt-2">Mohon isi dengan jujur dan lengkap. Terima kasih atas partisipasi Anda.</p>
+  </div>
+
+  <!-- Step Indicator -->
+  <div class="flex items-center justify-center gap-3 mb-8" id="stepIndicator">
+    <div class="step-dot active" id="dot1"></div>
+    <div class="w-10 h-0.5 bg-slate-200" id="line1"></div>
+    <div class="step-dot" id="dot2"></div>
+    <div class="w-10 h-0.5 bg-slate-200" id="line2"></div>
+    <div class="step-dot" id="dot3"></div>
+    <div class="w-10 h-0.5 bg-slate-200" id="line3"></div>
+    <div class="step-dot" id="dot4"></div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="progress-bar mb-8">
+    <div class="progress-fill" id="progressFill" style="width:25%"></div>
+  </div>
+
+  <!-- ============ HALAMAN 1: IDENTITAS ============ -->
+  <div class="page active card p-7" id="page1">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Langkah 1 dari 4</p>
+        <h2 class="text-lg font-bold text-slate-800">Identitas Responden</h2>
+      </div>
+    </div>
+
+    <div class="space-y-5">
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama / Inisial <span class="text-red-500">*</span></label>
+        <input type="text" id="nama" class="inp" placeholder="Contoh: Budi S. atau B.S."/>
+        <p class="field-error" id="errNama">Nama tidak boleh kosong.</p>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Kelas <span class="text-red-500">*</span></label>
+        <input type="text" id="kelas" class="inp" placeholder="Contoh: XII IPA 3"/>
+        <p class="field-error" id="errKelas">Kelas tidak boleh kosong.</p>
+      </div>
+    </div>
+
+    <div class="mt-8">
+      <button class="btn-primary w-full" onclick="goToPage2()">
+        Lanjut ke Data AI
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ HALAMAN 2: DATA AI ============ -->
+  <div class="page card p-7" id="page2">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-2"/></svg>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Langkah 2 dari 4</p>
+        <h2 class="text-lg font-bold text-slate-800">Data Penggunaan AI</h2>
+      </div>
+    </div>
+
+    <div class="space-y-6">
+      <!-- Pilihan AI -->
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">AI Text Generator yang paling sering Anda gunakan <span class="text-red-500">*</span></label>
+        <select id="aiChoice" class="inp">
+          <option value="">-- Pilih AI --</option>
+          <option value="Gemini">Gemini (Google)</option>
+          <option value="ChatGPT">ChatGPT (OpenAI)</option>
+          <option value="Claude">Claude (Anthropic)</option>
+          <option value="Copilot">Copilot (Microsoft)</option>
+          <option value="Lainnya">Lainnya</option>
+        </select>
+        <p class="field-error" id="errAI">Pilih AI yang Anda gunakan.</p>
+      </div>
+
+      <!-- Instruction Box -->
+      <div class="instruction-box">
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 bg-blue-200 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div>
+            <p class="font-bold text-blue-800 text-sm mb-2">📋 Petunjuk Validasi Jam Penggunaan</p>
+            <p class="text-slate-700 text-sm leading-relaxed mb-3">Silakan buka tab baru, masuk ke AI yang Anda pilih, lalu tanyakan salah satu kalimat berikut:</p>
+            <div class="bg-white border border-blue-200 rounded-lg p-3 mb-2">
+              <p class="mono text-xs text-slate-700 leading-relaxed">
+                "Berapa perkiraan total jam saya berinteraksi atau menggunakan layananmu dalam seminggu terakhir ini berdasarkan riwayat chat saya?"
+              </p>
+            </div>
+            <p class="text-slate-500 text-xs text-center mb-2 font-medium">— atau —</p>
+            <div class="bg-white border border-blue-200 rounded-lg p-3">
+              <p class="mono text-xs text-slate-700 leading-relaxed">
+                "Berikan estimasi berapa jam kita berdiskusi minggu ini."
+              </p>
+            </div>
+            <p class="text-slate-600 text-xs mt-3 font-medium">📸 Ambil screenshot jawaban AI tersebut, lalu isi form di bawah ini.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jam Penggunaan -->
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Total jam penggunaan per minggu (dari jawaban AI) <span class="text-red-500">*</span></label>
+        <div class="relative">
+          <input type="number" id="jamPenggunaan" class="inp pr-14" placeholder="0" min="0" step="0.5"/>
+          <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-semibold text-sm">Jam</span>
+        </div>
+        <p class="field-error" id="errJam">Masukkan angka jam penggunaan.</p>
+      </div>
+
+      <!-- Dropzone Screenshot -->
+      <div>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Unggah Screenshot Jawaban AI <span class="text-red-500">*</span></label>
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('screenshotFile').click()">
+          <div id="dropzoneContent">
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+            </div>
+            <p class="text-slate-700 font-semibold text-sm">Klik atau seret file gambar ke sini</p>
+            <p class="text-slate-400 text-xs mt-1">PNG, JPG, JPEG, WEBP (maks. 5MB)</p>
+          </div>
+          <div id="previewContainer" class="hidden">
+            <img id="previewImg" class="max-h-40 mx-auto rounded-lg shadow-sm mb-2" src="" alt="Preview"/>
+            <p id="previewName" class="text-teal-700 font-semibold text-sm"></p>
+            <p class="text-slate-400 text-xs mt-1">Klik untuk ganti file</p>
+          </div>
+        </div>
+        <input type="file" id="screenshotFile" accept="image/*" class="hidden" onchange="handleFile(event)"/>
+        <p class="field-error" id="errScreenshot">Unggah screenshot sebagai bukti.</p>
+      </div>
+    </div>
+
+    <div class="mt-8 flex gap-3">
+      <button class="flex-1 py-3 px-4 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-colors" onclick="goToPage(1)">
+        ← Kembali
+      </button>
+      <button class="flex-1 btn-primary" onclick="goToPage3()">
+        Mulai Tes Mengetik →
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ HALAMAN 3: TES MENGETIK ============ -->
+  <div class="page card p-7" id="page3">
+    <div class="flex items-center justify-between gap-3 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center">
+          <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        </div>
+        <div>
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Langkah 3 dari 4</p>
+          <h2 class="text-lg font-bold text-slate-800">Tes Mengetik Prompt</h2>
+        </div>
+      </div>
+      <div class="timer-badge" id="timerBadge">
+        <div class="timer-dot" id="timerDot"></div>
+        <span id="timerLabel">Belum dimulai</span>
+      </div>
+    </div>
+
+    <!-- Skenario -->
+    <div class="scenario-box mb-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="scenario-label" id="scenarioLabel">Sains</span>
+        <span class="text-slate-400 text-xs">Baca skenario dengan seksama</span>
+      </div>
+      <p class="text-slate-800 font-medium text-sm leading-relaxed" id="scenarioText">—</p>
+    </div>
+
+    <!-- Info tambahan -->
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-5">
+      <p class="text-amber-800 text-xs font-medium flex items-center gap-2">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Timer akan mulai berjalan otomatis saat Anda mulai mengetik. Ketik prompt sesuai skenario di atas.
+      </p>
+    </div>
+
+    <!-- Textarea -->
+    <div>
+      <label class="block text-sm font-semibold text-slate-700 mb-1.5">Ketik prompt Anda di sini:</label>
+      <textarea id="promptInput" class="inp" placeholder="Mulai mengetik prompt Anda..." oninput="onPromptInput()"></textarea>
+      <p class="field-error" id="errPrompt">Prompt tidak boleh kosong.</p>
+    </div>
+
+    <div class="mt-6 flex gap-3">
+      <button class="flex-shrink-0 py-3 px-4 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-colors" onclick="goToPage(2)">
+        ← Kembali
+      </button>
+      <button class="flex-1 btn-primary" onclick="submitData()" id="btnSubmit">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+        Kirim Data Penelitian
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ HALAMAN 4: SUKSES ============ -->
+  <div class="page card p-7 text-center" id="page4">
+    <div class="check-circle">
+      <svg class="w-9 h-9 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+    </div>
+    <h2 class="text-2xl font-extrabold text-slate-900 mb-2">Terima Kasih! 🎉</h2>
+    <p class="text-slate-500 text-sm mb-8">Data penelitian Anda telah berhasil direkam. Berikut ringkasan hasil tes Anda:</p>
+
+    <!-- Nama responden -->
+    <div class="bg-slate-50 rounded-xl p-3 mb-6 border border-slate-200">
+      <p class="text-slate-500 text-xs mb-0.5">Responden</p>
+      <p class="font-bold text-slate-800" id="resultNama">—</p>
+      <p class="text-slate-500 text-xs" id="resultKelas">—</p>
+    </div>
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-3 gap-3 mb-6">
+      <div class="result-metric">
+        <p class="text-3xl font-extrabold text-blue-600 mb-1" id="resultWaktu">0s</p>
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Waktu</p>
+      </div>
+      <div class="result-metric">
+        <p class="text-3xl font-extrabold text-violet-600 mb-1" id="resultWPM">0</p>
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">WPM</p>
+      </div>
+      <div class="result-metric">
+        <p class="text-3xl font-extrabold text-emerald-600 mb-1" id="resultAkurasi">0%</p>
+        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Akurasi</p>
+      </div>
+    </div>
+
+    <!-- Skenario yang didapat -->
+    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-left mb-6">
+      <p class="text-xs font-semibold text-slate-400 uppercase mb-1">Skenario</p>
+      <p class="text-sm text-slate-600 font-medium" id="resultSkenario">—</p>
+    </div>
+
+    <p class="text-slate-400 text-xs">Kontribusi Anda sangat berarti bagi kemajuan penelitian ini.</p>
+  </div>
+
+</div><!-- end max-w-xl -->
+
+<script>
+// ============================================================
+//  KONFIGURASI — ganti URL ini setelah deploy Google Apps Script
+// ============================================================
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzMS7XA5pHWFZQKYYqrrAYlJaBcl6UnB5oSJXx2SnhA18y9bgWFRR6aUGTX8Ef1XfoX/exec';
+
+// ============================================================
+//  DATA STATE
+// ============================================================
+const state = {
+  nama: '', kelas: '',
+  aiChoice: '', jamPenggunaan: 0,
+  screenshotBase64: '', screenshotName: '',
+  scenarioIndex: -1,
+  promptText: '',
+  startTime: null, endTime: null,
+  timerInterval: null,
+  timerRunning: false
+};
+
+const scenarios = [
+  {
+    label: 'Sains',
+    labelClass: 'label-sains',
+    text: 'Buatlah prompt untuk meminta AI menjelaskan proses terjadinya hujan asam agar mudah dipahami oleh anak sekolah dasar.',
+    keywords: [['hujan asam'], ['anak sd', 'mudah dipahami', 'sekolah dasar']]
+  },
+  {
+    label: 'Sejarah',
+    labelClass: 'label-sejarah',
+    text: 'Buatlah prompt yang meminta AI merangkum latar belakang Perang Dunia II dalam bentuk poin-poin penting untuk bahan presentasi kelas.',
+    keywords: [['perang dunia ii', 'perang dunia 2'], ['poin', 'rangkum', 'ringkas'], ['presentasi']]
+  },
+  {
+    label: 'Bahasa/Sastra',
+    labelClass: 'label-sastra',
+    text: 'Buatlah prompt untuk meminta AI membuat analisis intrinsik (tema, tokoh, alur) dari cerita rakyat Malin Kundang.',
+    keywords: [['malin kundang'], ['analisis', 'intrinsik']]
+  }
+];
+
+// ============================================================
+//  STEP MANAGEMENT
+// ============================================================
+const progresses = ['25%','50%','75%','100%'];
+
+function goToPage(n) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page' + n).classList.add('active');
+  // Step dots
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('dot' + i);
+    dot.classList.remove('active','done');
+    if (i < n) dot.classList.add('done');
+    else if (i === n) dot.classList.add('active');
+  }
+  document.getElementById('progressFill').style.width = progresses[n-1];
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function goToPage2() {
+  let ok = true;
+  const nama = document.getElementById('nama').value.trim();
+  const kelas = document.getElementById('kelas').value.trim();
+  if (!nama) { showErr('errNama'); ok = false; } else hideErr('errNama');
+  if (!kelas) { showErr('errKelas'); ok = false; } else hideErr('errKelas');
+  if (!ok) return;
+  state.nama = nama; state.kelas = kelas;
+  goToPage(2);
+}
+
+function goToPage3() {
+  let ok = true;
+  const ai = document.getElementById('aiChoice').value;
+  const jam = document.getElementById('jamPenggunaan').value;
+  if (!ai) { showErr('errAI'); ok = false; } else hideErr('errAI');
+  if (!jam || isNaN(jam) || Number(jam) < 0) { showErr('errJam'); ok = false; } else hideErr('errJam');
+  if (!state.screenshotBase64) { showErr('errScreenshot'); ok = false; } else hideErr('errScreenshot');
+  if (!ok) return;
+  state.aiChoice = ai; state.jamPenggunaan = Number(jam);
+  // Pick random scenario
+  if (state.scenarioIndex === -1) {
+    state.scenarioIndex = Math.floor(Math.random() * 3);
+  }
+  const sc = scenarios[state.scenarioIndex];
+  document.getElementById('scenarioLabel').textContent = sc.label;
+  document.getElementById('scenarioLabel').className = 'scenario-label ' + sc.labelClass;
+  document.getElementById('scenarioText').textContent = sc.text;
+  document.getElementById('promptInput').value = '';
+  state.startTime = null; state.endTime = null; state.timerRunning = false;
+  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+  document.getElementById('timerDot').className = 'timer-dot';
+  document.getElementById('timerLabel').textContent = 'Belum dimulai';
+  goToPage(3);
+}
+
+function showErr(id) { document.getElementById(id).classList.add('show'); }
+function hideErr(id) { document.getElementById(id).classList.remove('show'); }
+
+// ============================================================
+//  DROPZONE & FILE HANDLING
+// ============================================================
+const dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('dragover');
+  const files = e.dataTransfer.files;
+  if (files && files[0]) processFile(files[0]);
+});
+
+function handleFile(event) {
+  const file = event.target.files[0];
+  if (file) processFile(file);
+}
+
+function processFile(file) {
+  if (!file.type.startsWith('image/')) {
+    alert('Hanya file gambar yang diizinkan (PNG, JPG, JPEG, WEBP).');
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    alert('Ukuran file maksimal 5MB.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    state.screenshotBase64 = e.target.result; // full data URL (base64)
+    state.screenshotName = file.name;
+    // Show preview
+    document.getElementById('dropzone').classList.add('has-file');
+    document.getElementById('dropzoneContent').classList.add('hidden');
+    const prev = document.getElementById('previewContainer');
+    prev.classList.remove('hidden');
+    document.getElementById('previewImg').src = e.target.result;
+    document.getElementById('previewName').textContent = file.name;
+    hideErr('errScreenshot');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ============================================================
+//  TIMER
+// ============================================================
+function onPromptInput() {
+  if (!state.timerRunning && document.getElementById('promptInput').value.length > 0) {
+    state.startTime = Date.now();
+    state.timerRunning = true;
+    document.getElementById('timerDot').className = 'timer-dot running';
+    document.getElementById('timerLabel').textContent = 'Berjalan...';
+    state.timerInterval = setInterval(() => {
+      const secs = Math.floor((Date.now() - state.startTime) / 1000);
+      document.getElementById('timerLabel').textContent = formatTime(secs);
+    }, 1000);
+  }
+}
+
+function formatTime(secs) {
+  if (secs < 60) return secs + 'd';
+  return Math.floor(secs/60) + 'm ' + (secs%60) + 'd';
+}
+
+// ============================================================
+//  AKURASI & WPM
+// ============================================================
+function calcAccuracy(text, scenarioIdx) {
+  const lower = text.toLowerCase();
+  const groups = scenarios[scenarioIdx].keywords;
+  let found = 0;
+  for (const group of groups) {
+    if (group.some(kw => lower.includes(kw.toLowerCase()))) found++;
+  }
+  return Math.round((found / groups.length) * 100);
+}
+
+function calcWPM(chars, durationMs) {
+  const minutes = durationMs / 1000 / 60;
+  if (minutes === 0) return 0;
+  return Math.round((chars / 5) / minutes);
+}
+
+// ============================================================
+//  SUBMIT
+// ============================================================
+async function submitData() {
+  const promptText = document.getElementById('promptInput').value.trim();
+  if (!promptText) { showErr('errPrompt'); return; }
+  hideErr('errPrompt');
+
+  // Stop timer
+  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+  state.endTime = Date.now();
+  document.getElementById('timerDot').className = 'timer-dot';
+  document.getElementById('timerLabel').textContent = 'Selesai';
+
+  let durationMs = state.startTime ? (state.endTime - state.startTime) : 1000;
+  if (durationMs < 100) durationMs = 100;
+  const durationSec = Math.round(durationMs / 1000);
+  const wpm = calcWPM(promptText.length, durationMs);
+  const accuracy = calcAccuracy(promptText, state.scenarioIndex);
+
+  state.promptText = promptText;
+
+  const payload = {
+    nama: state.nama,
+    kelas: state.kelas,
+    aiChoice: state.aiChoice,
+    jamPenggunaan: state.jamPenggunaan,
+    skenario: scenarios[state.scenarioIndex].label,
+    prompt: promptText,
+    durasiDetik: durationSec,
+    wpm: wpm,
+    akurasi: accuracy,
+    screenshotBase64: state.screenshotBase64,
+    screenshotName: state.screenshotName,
+    timestamp: new Date().toISOString()
+  };
+
+  // Show loading
+  document.getElementById('loadingOverlay').classList.add('show');
+  document.getElementById('btnSubmit').disabled = true;
+
+  try {
+    if (GOOGLE_SCRIPT_URL !== 'GANTI_DENGAN_URL_WEB_APP_GOOGLE_SCRIPT_ANDA') {
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } else {
+      // Demo mode: simulate delay
+      await new Promise(r => setTimeout(r, 1200));
+    }
+  } catch (err) {
+    console.error('Fetch error:', err);
+  }
+
+  document.getElementById('loadingOverlay').classList.remove('show');
+
+  // Show results
+  document.getElementById('resultNama').textContent = state.nama;
+  document.getElementById('resultKelas').textContent = 'Kelas: ' + state.kelas;
+  document.getElementById('resultWaktu').textContent = durationSec + 'd';
+  document.getElementById('resultWPM').textContent = wpm;
+  document.getElementById('resultAkurasi').textContent = accuracy + '%';
+  document.getElementById('resultSkenario').textContent = scenarios[state.scenarioIndex].text;
+  document.getElementById('stepIndicator').style.display = 'flex';
+  goToPage(4);
+}
+</script>
+</body>
+</html>
