@@ -118,6 +118,11 @@
       background: #f1f5f9; border: 1px solid var(--border);
       font-size: 13px; font-weight: 600; color: var(--text-secondary);
     }
+    .timer-badge.running {
+      background: #dcfce7;
+      border-color: #86efac;
+      color: #166534;
+    }
     .timer-dot { width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; }
     .timer-dot.running { background: #22c55e; animation: pulse 1s infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
@@ -183,36 +188,70 @@
   <div class="text-center mb-8">
     <div class="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-1.5 mb-4">
       <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
-      <span class="text-blue-700 text-sm font-600 font-semibold">Penelitian Ilmiah</span>
+      <span class="text-blue-700 text-sm font-semibold">Penelitian Ilmiah</span>
     </div>
-    <h1 class="text-2xl md:text-3xl font-800 font-extrabold text-slate-900 leading-tight mb-2">
+    <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight mb-2">
       Pengaruh Penggunaan AI Text Generator<br class="hidden md:block"/>
       <span class="text-blue-600">terhadap Kecepatan Mengetik Prompt</span>
     </h1>
-    <p class="text-slate-500 text-sm mt-2">Mohon isi dengan jujur dan lengkap. Terima kasih atas partisipasi Anda.</p>
   </div>
 
   <div class="flex items-center justify-center gap-3 mb-8" id="stepIndicator">
     <div class="step-dot active" id="dot1"></div>
-    <div class="w-10 h-0.5 bg-slate-200" id="line1"></div>
+    <div class="w-8 h-0.5 bg-slate-200" id="line1"></div>
     <div class="step-dot" id="dot2"></div>
-    <div class="w-10 h-0.5 bg-slate-200" id="line2"></div>
+    <div class="w-8 h-0.5 bg-slate-200" id="line2"></div>
     <div class="step-dot" id="dot3"></div>
-    <div class="w-10 h-0.5 bg-slate-200" id="line3"></div>
+    <div class="w-8 h-0.5 bg-slate-200" id="line3"></div>
     <div class="step-dot" id="dot4"></div>
+    <div class="w-8 h-0.5 bg-slate-200" id="line4"></div>
+    <div class="step-dot" id="dot5"></div>
   </div>
 
   <div class="progress-bar mb-8">
-    <div class="progress-fill" id="progressFill" style="width:25%"></div>
+    <div class="progress-fill" id="progressFill" style="width:20%"></div>
   </div>
 
   <div class="page active card p-7" id="page1">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Langkah 1 dari 5</p>
+        <h2 class="text-lg font-bold text-slate-800">Tentang Penelitian Ini</h2>
+      </div>
+    </div>
+
+    <div class="text-slate-600 text-sm space-y-4 leading-relaxed mb-6">
+      <p>Selamat datang di platform pengumpulan data penelitian kuantitatif kami yang berjudul <strong>"Pengaruh Total Jam Penggunaan AI Text Generator per Minggu terhadap Kecepatan Mengetik Prompt"</strong>.</p>
+      <p>Penelitian ini bertujuan untuk menganalisis apakah intensitas dan tingkat keseringan seseorang berinteraksi dengan AI pembuat teks (seperti Gemini, ChatGPT, atau Claude) berkorelasi langsung dengan tingkat efisiensi, akurasi, dan kecepatan mereka saat merumuskan instruksi (*prompting*).</p>
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-700">
+        <p class="font-bold mb-1.5 text-slate-800">🔬 Alur Pengisian Form:</p>
+        <ul class="list-disc list-inside space-y-1 text-xs">
+          <li>Pengisian data identitas singkat (Nama/Inisial & Kelas).</li>
+          <li>Mengisi tingkat keseringan memakai AI dan mengunggah bukti screenshoot aktivitas.</li>
+          <li>Mengikuti tes simulasi pengetikan prompt secara langsung (akan dihitung waktu otomatis).</li>
+        </ul>
+      </div>
+      <p class="text-xs text-slate-400 italic">Seluruh data yang Anda masukkan bersifat rahasia dan hanya akan dipergunakan untuk kepentingan pengolahan data statistik penelitian ilmiah ini.</p>
+    </div>
+
+    <div class="mt-8">
+      <button class="btn-primary w-full" onclick="goToPage(2)">
+        Mulai Pengisian Data
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="page card p-7" id="page2">
     <div class="flex items-center gap-3 mb-6">
       <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
         <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
       </div>
       <div>
-        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Langkah 1 dari 4</p>
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Langkah 2 dari 5</p>
         <h2 class="text-lg font-bold text-slate-800">Identitas Responden</h2>
       </div>
     </div>
@@ -230,21 +269,24 @@
       </div>
     </div>
 
-    <div class="mt-8">
-      <button class="btn-primary w-full" onclick="goToPage2()">
+    <div class="mt-8 flex gap-3">
+      <button class="py-3 px-4 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-colors" onclick="goToPage(1)">
+        ← Kembali
+      </button>
+      <button class="flex-1 btn-primary" onclick="goToPage3()">
         Lanjut ke Data AI
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
       </button>
     </div>
   </div>
 
-  <div class="page card p-7" id="page2">
+  <div class="page card p-7" id="page3">
     <div class="flex items-center gap-3 mb-6">
       <div class="w-10 h-10 bg-teal-100 rounded-xl flex items-center justify-center">
         <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-2"/></svg>
       </div>
       <div>
-        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Langkah 2 dari 4</p>
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Langkah 3 dari 5</p>
         <h2 class="text-lg font-bold text-slate-800">Data Penggunaan AI</h2>
       </div>
     </div>
@@ -252,7 +294,7 @@
     <div class="space-y-6">
       <div>
         <label class="block text-sm font-semibold text-slate-700 mb-1.5">AI Text Generator yang paling sering Anda gunakan <span class="text-red-500">*</span></label>
-        <select id="aiChoice" class="inp">
+        <select id="aiChoice" class="inp" onchange="updateInstructionText()">
           <option value="">-- Pilih AI --</option>
           <option value="Gemini">Gemini (Google)</option>
           <option value="ChatGPT">ChatGPT (OpenAI)</option>
@@ -269,31 +311,34 @@
             <svg class="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
           <div>
-            <p class="font-bold text-blue-800 text-sm mb-2">📋 Petunjuk Validasi Jam Penggunaan</p>
-            <p class="text-slate-700 text-sm leading-relaxed mb-3">Silakan buka tab baru, masuk ke AI yang Anda pilih, lalu tanyakan salah satu kalimat berikut:</p>
+            <p class="font-bold text-blue-800 text-sm mb-2">📋 Petunjuk Validasi</p>
+            <p class="text-slate-700 text-sm leading-relaxed mb-3">Silakan buka tab baru, masuk ke <span id="selectedAIName" class="font-bold text-blue-700">AI pilihan Anda</span>, lalu tanyakan kalimat berikut:</p>
             <div class="bg-white border border-blue-200 rounded-lg p-3 mb-2">
               <p class="mono text-xs text-slate-700 leading-relaxed">
-                "Berapa perkiraan total jam saya berinteraksi atau menggunakan layananmu dalam seminggu terakhir ini berdasarkan riwayat chat saya?"
+                "Berdasarkan interaksi kita selama ini, berikan penilaian skala 1-10 seberapa sering atau intens saya berhubungan dan berdiskusi menggunakan layananmu?"
               </p>
             </div>
-            <p class="text-slate-500 text-xs text-center mb-2 font-medium">— atau —</p>
-            <div class="bg-white border border-blue-200 rounded-lg p-3">
-              <p class="mono text-xs text-slate-700 leading-relaxed">
-                "Berikan estimasi berapa jam kita berdiskusi minggu ini."
-              </p>
-            </div>
-            <p class="text-slate-600 text-xs mt-3 font-medium">📸 Ambil screenshot jawaban AI tersebut, lalu isi form di bawah ini.</p>
+            <p class="text-slate-600 text-xs mt-3 font-medium">📸 Ambil tangkapan layar (screenshot) hasil jawaban AI tersebut, lalu isi form di bawah ini.</p>
           </div>
         </div>
       </div>
 
       <div>
-        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Total jam penggunaan per minggu (dari jawaban AI) <span class="text-red-500">*</span></label>
-        <div class="relative">
-          <input type="number" id="jamPenggunaan" class="inp pr-14" placeholder="0" min="0" step="0.5"/>
-          <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-semibold text-sm">Jam</span>
-        </div>
-        <p class="field-error" id="errJam">Masukkan angka jam penggunaan.</p>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Skala seberapa sering berhubungan dengan AI (dari jawaban AI) <span class="text-red-500">*</span></label>
+        <select id="jamPenggunaan" class="inp">
+          <option value="">-- Pilih Skala (1-10) --</option>
+          <option value="1">1 - Sangat Jarang Sekali</option>
+          <option value="2">2 - Jarang Sekali</option>
+          <option value="3">3 - Jarang</option>
+          <option value="4">4 - Cukup Jarang</option>
+          <option value="5">5 - Sedang / Kadang-kadang</option>
+          <option value="6">6 - Cukup Sering</option>
+          <option value="7">7 - Sering</option>
+          <option value="8">8 - Sangat Sering</option>
+          <option value="9">9 - Hampir Setiap Saat</option>
+          <option value="10">10 - Intensitas Sangat Tinggi / Setiap Hari</option>
+        </select>
+        <p class="field-error" id="errJam">Pilih skala nilai sesuai instruksi jawaban AI.</p>
       </div>
 
       <div>
@@ -313,41 +358,41 @@
           </div>
         </div>
         <input type="file" id="screenshotFile" accept="image/*" class="hidden" onchange="handleFile(event)"/>
-        <p class="field-error" id="errScreenshot">Unggah screenshot sebagai bukti.</p>
+        <p class="field-error" id="errScreenshot">Unggah screenshot bukti jawaban AI terlebih dahulu.</p>
       </div>
     </div>
 
     <div class="mt-8 flex gap-3">
-      <button class="flex-1 py-3 px-4 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-colors" onclick="goToPage(1)">
+      <button class="py-3 px-4 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-colors" onclick="goToPage(2)">
         ← Kembali
       </button>
-      <button class="flex-1 btn-primary" onclick="goToPage3()">
+      <button class="flex-1 btn-primary" onclick="goToPage4()">
         Mulai Tes Mengetik →
       </button>
     </div>
   </div>
 
-  <div class="page card p-7" id="page3">
+  <div class="page card p-7" id="page4">
     <div class="flex items-center justify-between gap-3 mb-6">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center">
           <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
         </div>
         <div>
-          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Langkah 3 dari 4</p>
+          <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Langkah 4 dari 5</p>
           <h2 class="text-lg font-bold text-slate-800">Tes Mengetik Prompt</h2>
         </div>
       </div>
       <div class="timer-badge" id="timerBadge">
         <div class="timer-dot" id="timerDot"></div>
-        <span id="timerLabel">Belum dimulai</span>
+        <span id="timerLabel" class="font-bold">Belum dimulai</span>
       </div>
     </div>
 
     <div class="scenario-box mb-5">
       <div class="flex items-center gap-2 mb-3">
         <span class="scenario-label" id="scenarioLabel">Sains</span>
-        <span class="text-slate-400 text-xs">Baca skenario dengan seksama</span>
+        <span class="text-slate-400 text-xs">Baca skenario edukasi dengan seksama</span>
       </div>
       <p class="text-slate-800 font-medium text-sm leading-relaxed" id="scenarioText">—</p>
     </div>
@@ -355,18 +400,18 @@
     <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-5">
       <p class="text-amber-800 text-xs font-medium flex items-center gap-2">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        Timer akan mulai berjalan otomatis saat Anda mulai mengetik. Ketik prompt sesuai skenario di atas.
+        Timer akan berjalan dan tampil secara real-time tepat saat Anda mulai mengetik teks pertama.
       </p>
     </div>
 
     <div>
       <label class="block text-sm font-semibold text-slate-700 mb-1.5">Ketik prompt Anda di sini:</label>
-      <textarea id="promptInput" class="inp" placeholder="Mulai mengetik prompt Anda..." oninput="onPromptInput()"></textarea>
-      <p class="field-error" id="errPrompt">Prompt tidak boleh kosong.</p>
+      <textarea id="promptInput" class="inp" placeholder="Mulai mengetik prompt Anda di sini..." oninput="onPromptInput()"></textarea>
+      <p class="field-error" id="errPrompt">Kolom teks prompt tidak boleh kosong.</p>
     </div>
 
     <div class="mt-6 flex gap-3">
-      <button class="flex-shrink-0 py-3 px-4 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-colors" onclick="goToPage(2)">
+      <button class="flex-shrink-0 py-3 px-4 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-colors" onclick="goToPage(3)">
         ← Kembali
       </button>
       <button class="flex-1 btn-primary" onclick="submitData()" id="btnSubmit">
@@ -376,12 +421,12 @@
     </div>
   </div>
 
-  <div class="page card p-7 text-center" id="page4">
+  <div class="page card p-7 text-center" id="page5">
     <div class="check-circle">
       <svg class="w-9 h-9 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
     </div>
     <h2 class="text-2xl font-extrabold text-slate-900 mb-2">Terima Kasih! 🎉</h2>
-    <p class="text-slate-500 text-sm mb-8">Data penelitian Anda telah berhasil direkam. Berikut ringkasan hasil tes Anda:</p>
+    <p class="text-slate-500 text-sm mb-8">Data penelitian Anda telah berhasil direkam ke database. Berikut ringkasan hasil uji kompetensi pengetikan Anda:</p>
 
     <div class="bg-slate-50 rounded-xl p-3 mb-6 border border-slate-200">
       <p class="text-slate-500 text-xs mb-0.5">Responden</p>
@@ -391,35 +436,36 @@
 
     <div class="grid grid-cols-3 gap-3 mb-6">
       <div class="result-metric">
-        <p class="text-3xl font-extrabold text-blue-600 mb-1" id="resultWaktu">0s</p>
+        <p class="text-2xl md:text-3xl font-extrabold text-blue-600 mb-1" id="resultWaktu">0s</p>
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Waktu</p>
       </div>
       <div class="result-metric">
-        <p class="text-3xl font-extrabold text-violet-600 mb-1" id="resultWPM">0</p>
+        <p class="text-2xl md:text-3xl font-extrabold text-violet-600 mb-1" id="resultWPM">0</p>
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">WPM</p>
       </div>
       <div class="result-metric">
-        <p class="text-3xl font-extrabold text-emerald-600 mb-1" id="resultAkurasi">0%</p>
+        <p class="text-2xl md:text-3xl font-extrabold text-emerald-600 mb-1" id="resultAkurasi">0%</p>
         <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Akurasi</p>
       </div>
     </div>
 
     <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-left mb-6">
-      <p class="text-xs font-semibold text-slate-400 uppercase mb-1">Skenario</p>
+      <p class="text-xs font-semibold text-slate-400 uppercase mb-1">Skenario Edukasi</p>
       <p class="text-sm text-slate-600 font-medium" id="resultSkenario">—</p>
     </div>
 
-    <p class="text-slate-400 text-xs">Kontribusi Anda sangat berarti bagi kemajuan penelitian ini.</p>
+    <p class="text-slate-400 text-xs">Partisipasi aktif Anda sangat membantu validitas kajian ilmiah kuantitatif ini.</p>
   </div>
 
-</div><!-- end max-w-xl -->
+</div>
 
 <script>
+// SILAKAN GANTI URL DI BAWAH INI DENGAN LINK WEB APP DARI APPS SCRIPT SPREADSHEET ANDA
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzMS7XA5pHWFZQKYYqrrAYlJaBcl6UnB5oSJXx2SnhA18y9bgWFRR6aUGTX8Ef1XfoX/exec';
 
 const state = {
   nama: '', kelas: '',
-  aiChoice: '', jamPenggunaan: 0,
+  aiChoice: '', jamPenggunaan: '',
   screenshotBase64: '', screenshotName: '',
   scenarioIndex: -1,
   promptText: '',
@@ -449,23 +495,25 @@ const scenarios = [
   }
 ];
 
-const progresses = ['25%','50%','75%','100%'];
+const progresses = ['20%','40%','60%','80%','100%'];
 
 function goToPage(n) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page' + n).classList.add('active');
-  // Step dots
-  for (let i = 1; i <= 4; i++) {
+  
+  for (let i = 1; i <= 5; i++) {
     const dot = document.getElementById('dot' + i);
-    dot.classList.remove('active','done');
-    if (i < n) dot.classList.add('done');
-    else if (i === n) dot.classList.add('active');
+    if(dot) {
+      dot.classList.remove('active','done');
+      if (i < n) dot.classList.add('done');
+      else if (i === n) dot.classList.add('active');
+    }
   }
   document.getElementById('progressFill').style.width = progresses[n-1];
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
-function goToPage2() {
+function goToPage3() {
   let ok = true;
   const nama = document.getElementById('nama').value.trim();
   const kelas = document.getElementById('kelas').value.trim();
@@ -473,19 +521,19 @@ function goToPage2() {
   if (!kelas) { showErr('errKelas'); ok = false; } else hideErr('errKelas');
   if (!ok) return;
   state.nama = nama; state.kelas = kelas;
-  goToPage(2);
+  goToPage(3);
 }
 
-function goToPage3() {
+function goToPage4() {
   let ok = true;
   const ai = document.getElementById('aiChoice').value;
   const jam = document.getElementById('jamPenggunaan').value;
   if (!ai) { showErr('errAI'); ok = false; } else hideErr('errAI');
-  if (!jam || isNaN(jam) || Number(jam) < 0) { showErr('errJam'); ok = false; } else hideErr('errJam');
+  if (!jam) { showErr('errJam'); ok = false; } else hideErr('errJam');
   if (!state.screenshotBase64) { showErr('errScreenshot'); ok = false; } else hideErr('errScreenshot');
   if (!ok) return;
-  state.aiChoice = ai; state.jamPenggunaan = Number(jam);
-  // Pick random scenario
+  state.aiChoice = ai; state.jamPenggunaan = jam;
+  
   if (state.scenarioIndex === -1) {
     state.scenarioIndex = Math.floor(Math.random() * 3);
   }
@@ -496,9 +544,16 @@ function goToPage3() {
   document.getElementById('promptInput').value = '';
   state.startTime = null; state.endTime = null; state.timerRunning = false;
   if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+  document.getElementById('timerBadge').className = 'timer-badge';
   document.getElementById('timerDot').className = 'timer-dot';
   document.getElementById('timerLabel').textContent = 'Belum dimulai';
-  goToPage(3);
+  goToPage(4);
+}
+
+function updateInstructionText() {
+  const aiElement = document.getElementById('aiChoice');
+  const selectedText = aiElement.options[aiElement.selectedIndex].text;
+  document.getElementById('selectedAIName').textContent = aiElement.value ? selectedText : 'AI pilihan Anda';
 }
 
 function showErr(id) { document.getElementById(id).classList.add('show'); }
@@ -529,9 +584,9 @@ function processFile(file) {
   }
   const reader = new FileReader();
   reader.onload = function(e) {
-    state.screenshotBase64 = e.target.result; // full data URL (base64)
+    state.screenshotBase64 = e.target.result; 
     state.screenshotName = file.name;
-    // Show preview
+    
     document.getElementById('dropzone').classList.add('has-file');
     document.getElementById('dropzoneContent').classList.add('hidden');
     const prev = document.getElementById('previewContainer');
@@ -547,18 +602,15 @@ function onPromptInput() {
   if (!state.timerRunning && document.getElementById('promptInput').value.length > 0) {
     state.startTime = Date.now();
     state.timerRunning = true;
+    document.getElementById('timerBadge').className = 'timer-badge running';
     document.getElementById('timerDot').className = 'timer-dot running';
-    document.getElementById('timerLabel').textContent = 'Berjalan...';
+    document.getElementById('timerLabel').textContent = '0s';
+    
     state.timerInterval = setInterval(() => {
       const secs = Math.floor((Date.now() - state.startTime) / 1000);
-      document.getElementById('timerLabel').textContent = formatTime(secs);
+      document.getElementById('timerLabel').textContent = secs + 's';
     }, 1000);
   }
-}
-
-function formatTime(secs) {
-  if (secs < 60) return secs + 'd';
-  return Math.floor(secs/60) + 'm ' + (secs%60) + 'd';
 }
 
 function calcAccuracy(text, scenarioIdx) {
@@ -599,7 +651,7 @@ async function submitData() {
     nama: state.nama,
     kelas: state.kelas,
     aiChoice: state.aiChoice,
-    jamPenggunaan: state.jamPenggunaan,
+    skalaPenggunaan: state.jamPenggunaan,
     skenario: scenarios[state.scenarioIndex].label,
     prompt: promptText,
     durasiDetik: durationSec,
@@ -614,7 +666,7 @@ async function submitData() {
   document.getElementById('btnSubmit').disabled = true;
 
   try {
-    if (GOOGLE_SCRIPT_URL !== 'https://script.google.com/macros/s/AKfycbzMS7XA5pHWFZQKYYqrrAYlJaBcl6UnB5oSJXx2SnhA18y9bgWFRR6aUGTX8Ef1XfoX/exec') {
+    if (GOOGLE_SCRIPT_URL !== '' && GOOGLE_SCRIPT_URL.indexOf('macros/s/') !== -1) {
       await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
@@ -622,7 +674,7 @@ async function submitData() {
         body: JSON.stringify(payload)
       });
     } else {
-      await new Promise(r => setTimeout(r, 1200));
+      await new Promise(r => setTimeout(r, 1500));
     }
   } catch (err) {
     console.error('Fetch error:', err);
@@ -632,12 +684,12 @@ async function submitData() {
 
   document.getElementById('resultNama').textContent = state.nama;
   document.getElementById('resultKelas').textContent = 'Kelas: ' + state.kelas;
-  document.getElementById('resultWaktu').textContent = durationSec + 'd';
+  document.getElementById('resultWaktu').textContent = durationSec + 's';
   document.getElementById('resultWPM').textContent = wpm;
   document.getElementById('resultAkurasi').textContent = accuracy + '%';
   document.getElementById('resultSkenario').textContent = scenarios[state.scenarioIndex].text;
-  document.getElementById('stepIndicator').style.display = 'flex';
-  goToPage(4);
+  
+  goToPage(5);
 }
 </script>
 </body>
