@@ -305,6 +305,12 @@
         <p class="field-error" id="errAI">Pilih AI yang Anda gunakan.</p>
       </div>
 
+      <div id="customAIPanel" class="hidden duration-300">
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Sebutkan nama AI Text Generator yang Anda gunakan <span class="text-red-500">*</span></label>
+        <input type="text" id="customAIName" class="inp" placeholder="Contoh: DeepSeek, Grok, Perplexity, dll."/>
+        <p class="field-error" id="errCustomAI">Tuliskan nama AI yang Anda maksud.</p>
+      </div>
+
       <div class="instruction-box">
         <div class="flex items-start gap-3">
           <div class="w-8 h-8 bg-blue-200 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -460,7 +466,6 @@
 </div>
 
 <script>
-// SILAKAN GANTI URL DI BAWAH INI DENGAN LINK WEB APP DARI APPS SCRIPT SPREADSHEET ANDA
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzMS7XA5pHWFZQKYYqrrAYlJaBcl6UnB5oSJXx2SnhA18y9bgWFRR6aUGTX8Ef1XfoX/exec';
 
 const state = {
@@ -526,12 +531,23 @@ function goToPage3() {
 
 function goToPage4() {
   let ok = true;
-  const ai = document.getElementById('aiChoice').value;
+  let ai = document.getElementById('aiChoice').value;
+  const customAI = document.getElementById('customAIName').value.trim();
   const jam = document.getElementById('jamPenggunaan').value;
+  
   if (!ai) { showErr('errAI'); ok = false; } else hideErr('errAI');
+  
+  if (ai === 'Lainnya') {
+    if (!customAI) { showErr('errCustomAI'); ok = false; } else hideErr('errCustomAI');
+    ai = "Lainnya (" + customAI + ")";
+  } else {
+    hideErr('errCustomAI');
+  }
+  
   if (!jam) { showErr('errJam'); ok = false; } else hideErr('errJam');
   if (!state.screenshotBase64) { showErr('errScreenshot'); ok = false; } else hideErr('errScreenshot');
   if (!ok) return;
+  
   state.aiChoice = ai; state.jamPenggunaan = jam;
   
   if (state.scenarioIndex === -1) {
@@ -552,8 +568,16 @@ function goToPage4() {
 
 function updateInstructionText() {
   const aiElement = document.getElementById('aiChoice');
-  const selectedText = aiElement.options[aiElement.selectedIndex].text;
-  document.getElementById('selectedAIName').textContent = aiElement.value ? selectedText : 'AI pilihan Anda';
+  const customPanel = document.getElementById('customAIPanel');
+  
+  if (aiElement.value === 'Lainnya') {
+    customPanel.classList.remove('hidden');
+    document.getElementById('selectedAIName').textContent = 'AI pilihan Anda';
+  } else {
+    customPanel.classList.add('hidden');
+    const selectedText = aiElement.options[aiElement.selectedIndex].text;
+    document.getElementById('selectedAIName').textContent = aiElement.value ? selectedText : 'AI pilihan Anda';
+  }
 }
 
 function showErr(id) { document.getElementById(id).classList.add('show'); }
